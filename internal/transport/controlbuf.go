@@ -660,6 +660,7 @@ func (l *loopyWriter) headerHandler(h *headerFrame) error {
 		return l.cleanupStreamHandler(h.cleanup)
 	}
 	// Case 2: Client wants to originate stream.
+	fmt.Printf("@@@@@@@@@@@@@  headers %v\n", h.hf)
 	str := &outStream{
 		id:    h.streamID,
 		state: empty,

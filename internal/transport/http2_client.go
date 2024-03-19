@@ -1397,6 +1397,7 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 	if !initialHeader && !endStream {
 		// As specified by gRPC over HTTP2, a HEADERS frame (and associated CONTINUATION frames) can only appear at the start or end of a stream. Therefore, second HEADERS frame must have EOS bit set.
 		st := status.New(codes.Internal, "a HEADERS frame cannot appear in the middle of a stream")
+		fmt.Println("@@@@@@@@@@@a HEADERS frame cannot appear in the middle of a stream")
 		t.closeStream(s, st.Err(), true, http2.ErrCodeProtocol, st, nil, false)
 		return
 	}
@@ -1405,6 +1406,7 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 	// list size hits MaxHeaderListSize limit.
 	if frame.Truncated {
 		se := status.New(codes.Internal, "peer header list size exceeded limit")
+		fmt.Println("@@@@@@@@@@@peer header list size exceeded limit")
 		t.closeStream(s, se.Err(), true, http2.ErrCodeFrameSize, se, nil, endStream)
 		return
 	}
@@ -1444,6 +1446,7 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 			code, err := strconv.ParseInt(hf.Value, 10, 32)
 			if err != nil {
 				se := status.New(codes.Internal, fmt.Sprintf("transport: malformed grpc-status: %v", err))
+				fmt.Printf("@@@@@@@@@@@transport: malformed grpc-status: %v", err)
 				t.closeStream(s, se.Err(), true, http2.ErrCodeProtocol, se, nil, endStream)
 				return
 			}
@@ -1461,6 +1464,7 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 			c, err := strconv.ParseInt(hf.Value, 10, 32)
 			if err != nil {
 				se := status.New(codes.Internal, fmt.Sprintf("transport: malformed http-status: %v", err))
+				fmt.Printf("@@@@@@@@@@@transport: malformed http-status: %v", err)
 				t.closeStream(s, se.Err(), true, http2.ErrCodeProtocol, se, nil, endStream)
 				return
 			}
@@ -1505,12 +1509,14 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 		}
 		// Verify the HTTP response is a 200.
 		se := status.New(code, strings.Join(errs, "; "))
+		fmt.Println("@@@@@@@@@@@status is not 200")
 		t.closeStream(s, se.Err(), true, http2.ErrCodeProtocol, se, nil, endStream)
 		return
 	}
 
 	if headerError != "" {
 		se := status.New(codes.Internal, headerError)
+		fmt.Printf("@@@@@@@@@@@headerError is not empty %v", headerError)
 		t.closeStream(s, se.Err(), true, http2.ErrCodeProtocol, se, nil, endStream)
 		return
 	}
@@ -1621,6 +1627,7 @@ func (t *http2Client) reader(errCh chan<- error) {
 					} else {
 						msg = "received invalid frame"
 					}
+					fmt.Println("@@@@@@@@@@@received invalid frame")
 					t.closeStream(s, status.Error(code, msg), true, http2.ErrCodeProtocol, status.New(code, msg), nil, false)
 				}
 				continue
